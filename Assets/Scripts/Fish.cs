@@ -13,14 +13,16 @@ public class Fish : MonoBehaviour
     public Sprite fishDied;
     SpriteRenderer _sp;
     Animator _anim;
+    [SerializeField] private AudioSource swim,hit,point;
 
     public Score score;
     public GameManager gameManager;
+    public ObstacleSpawner obstacleSpawner;
 
     void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
-        //_rb.gravityScale = 0;     
+        _rb.gravityScale = 0;       
         _sp = GetComponent<SpriteRenderer>();
         _anim = GetComponent<Animator>();
     }
@@ -37,8 +39,22 @@ public class Fish : MonoBehaviour
         // Fish input hareket
         if (Input.GetMouseButtonDown(0) && !GameManager.gameOver)
         {
-            _rb.velocity = Vector2.zero;
-            _rb.velocity = new Vector2(_rb.velocity.x, _speed);
+            if (!GameManager.gameStared)
+            {
+                swim.Play();
+                _rb.gravityScale = 4f;
+                _rb.velocity = Vector2.zero;
+                _rb.velocity = new Vector2(_rb.velocity.x, _speed);
+                obstacleSpawner.InstantiateObstacle();
+                gameManager.GameHasStarted();
+            }
+            else
+            {
+                swim.Play();
+                _rb.velocity = Vector2.zero;
+                _rb.velocity = new Vector2(_rb.velocity.x, _speed);
+            }
+            
         }
     }
     void FishRotation()
@@ -72,11 +88,13 @@ public class Fish : MonoBehaviour
             // Temas edilen obje Obstacle (Obstacle objelerinin arasýndan geçmiþ) ise Skor artýr
             //Debug.Log("Scoe!!!");
             score.Scored(); // Skor arttýrma fonk çalýþ
+            point.Play();
         }    
-        else if (collision.CompareTag("Column"))
+        else if (collision.CompareTag("Column") && !GameManager.gameOver)
         {
             // GameOver
             gameManager.GameOver();
+            FishDiedEffect();
         }
     }
     private void OnCollisionEnter2D(Collision2D collision)
@@ -89,15 +107,21 @@ public class Fish : MonoBehaviour
                 // GameOver
                 gameManager.GameOver();
                 GameOver();
+                FishDiedEffect();
             }
             else
             {
                 Debug.Log("Player Died..!");
                 // GameOver (Fish)
                 gameManager.GameOver();
-                GameOver();                
+                GameOver();
+                FishDiedEffect();
             }
         }
+    }
+    void FishDiedEffect()
+    {
+        hit.Play();
     }
     void GameOver()
     {

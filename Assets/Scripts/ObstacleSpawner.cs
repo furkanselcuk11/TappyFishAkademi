@@ -11,12 +11,12 @@ public class ObstacleSpawner : MonoBehaviour
     [SerializeField] private float minY;
     float _randomY;
     void Start()
-    {
-        InstantiateObstacle();
+    {       
+        //InstantiateObstacle();
     }    
     void Update()
     {
-        if (!GameManager.gameOver)
+        if (!GameManager.gameOver && GameManager.gameStared)
         {
             _timer += Time.deltaTime;
             if (_timer >= maxTime)
